@@ -14,12 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+<<<<<<< HEAD
 from django.urls import path, include
 from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+=======
+from django.urls import path
+from django.views.generic import TemplateView
+>>>>>>> 29b361cd135d1a5d46d9f69a014b5c436ce23b78
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +33,7 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
+<<<<<<< HEAD
     path(
         'api/v1/auth/token/',
         TokenObtainPairView.as_view(),
@@ -39,4 +45,6 @@ urlpatterns = [
         name='token_refresh'
     ),
     path('api/', include('api.urls')),
+=======
+>>>>>>> 29b361cd135d1a5d46d9f69a014b5c436ce23b78
 ]

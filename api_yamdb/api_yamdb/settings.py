@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< HEAD
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
@@ -28,6 +29,8 @@ INSTALLED_APPS = [
     'users',
     'reviews',
     'django_filters',
+=======
+>>>>>>> 29b361cd135d1a5d46d9f69a014b5c436ce23b78
 ]
 
 MIDDLEWARE = [
@@ -89,6 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+<<<<<<< HEAD
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly', 
@@ -100,6 +104,8 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'users.User'
+=======
+>>>>>>> 29b361cd135d1a5d46d9f69a014b5c436ce23b78
 
 # Internationalization
 
