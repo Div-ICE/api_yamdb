@@ -1,0 +1,9 @@
+[flake8]
+# файл для игнора линтера
+exclude =
+    migrations
+    __pycache__
+    manage.py
+    settings.py
+    env
+    .env
