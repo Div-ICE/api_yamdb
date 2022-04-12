@@ -22,12 +22,6 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    """def get_rating(self):
-        Функцию переписать, или вообще удалить
-        rating = Review.objects.filter(title_id=id).aggregate('score')
-        # функция неверная
-        return rating # функция неверная
-    """
     name = models.CharField(
         'Название',
         max_length=300,
@@ -39,12 +33,6 @@ class Title(models.Model):
             MinValueValidator(0),
         ]
     )
-    rating = models.DecimalField(
-        # get_rating(self),
-        null=True,
-        decimal_places=2,
-        max_digits=2,
-    )  # integer (Рейтинг на основе отзывов, если отзывов нет — `None`)
     description = models.TextField(
         'Описание',
         null=True,
