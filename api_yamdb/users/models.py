@@ -1,67 +1,51 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from model_utils import Choices
 
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
 
 class User(AbstractUser):
-    ROLE = Choices(
-        ('U', 'user'),
-        ('M', 'moderator'),
-        ('A', 'admin'),
+    ROLE = (
+        (USER, USER),
+        (MODERATOR, MODERATOR),
+        (ADMIN, ADMIN),
     )
     bio = models.TextField(
         'Биография',
         blank=True,
     )
     role = models.CharField(
-        max_length=1,
+        'Роль пользователя',
         choices=ROLE,
-        default=ROLE.U)
-
-
-"""
-Сделано по этому образцу. оставил для доработки serializers и viewsets
-
-тред
-https://stackoverflow.com/questions/28945327/django-rest-framework-with-choicefield
-источник ответа
-https://stackoverflow.com/a/34775194/17683875
-
-
-# models.py
-from model_utils import Choices
-
-class User(AbstractUser):
-    GENDER = Choices(
-       ('M', 'Male'),
-       ('F', 'Female'),
+        max_length=max(len(role[1]) for role in ROLE), default=USER
     )
 
-    gender = models.CharField(max_length=1, choices=GENDER, default=GENDER.M)
+    email = models.EmailField(
+        'Электронная почта',
+        unique=True,
+        max_length=254,
+    )
 
+    first_name = models.CharField(
+        'Имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        'Фамилия',
+        max_length=150,
+        blank=True
+    )
 
-# serializers.py 
-from rest_framework import serializers
+    def is_admin(self):
+        return (
+            self.role == self.ROLE.A
+            or self.is_staff
+        )
 
-class ChoicesField(serializers.Field):
-    def __init__(self, choices, **kwargs):
-        self._choices = choices
-        super(ChoicesField, self).__init__(**kwargs)
+    def is_moderator(self):
+        return self.role == self.ROLE.M
 
-    def to_representation(self, obj):
-        return self._choices[obj]
-
-    def to_internal_value(self, data):
-        return getattr(self._choices, data)
-
-class UserSerializer(serializers.ModelSerializer):
-    gender = ChoicesField(choices=User.GENDER)
-
-    class Meta:
-        model = User
-
-# viewsets.py
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-"""
+    def __str__(self):
+        return self.username
