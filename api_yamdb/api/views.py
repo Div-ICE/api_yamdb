@@ -26,6 +26,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerializer, GenreSerializer,
                           GetTokenSerializer, ReviewSerializer,
                           TitleSerializer, UserSerializer)
+from .filters import TitleFilter
 
 """все вьюсеты править, добавлять пермишены и тд"""
 
@@ -179,6 +180,7 @@ class CategoryViewSet(CreateModelMixin, ListModelMixin,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     pagination_class = PageNumberPagination
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CommentViewSet(CreateModelMixin, ListModelMixin,
@@ -210,6 +212,7 @@ class GenreViewSet(CreateModelMixin, ListModelMixin,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     pagination_class = PageNumberPagination
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class ReviewViewSet(CreateModelMixin, ListModelMixin,
@@ -230,3 +233,5 @@ class TitleViewSet(ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     pagination_class = PageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = TitleFilter

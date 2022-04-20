@@ -40,12 +40,12 @@ class User(AbstractUser):
 
     def is_admin(self):
         return (
-            self.role == self.ROLE.A
+            self.role == ADMIN
             or self.is_staff
         )
 
     def is_moderator(self):
-        return self.role == self.ROLE.M
+        return self.role == MODERATOR
 
     def __str__(self):
         return self.username
