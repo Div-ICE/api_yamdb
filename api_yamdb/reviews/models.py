@@ -10,7 +10,7 @@ class Genre(models.Model):
     slug = models.SlugField(max_length=50, unique=True)
 
     def __str__(self) -> str:
-        return self.name
+        return self.slug
 
 
 class Category(models.Model):
@@ -18,7 +18,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=50, unique=True)
 
     def __str__(self) -> str:
-        return self.name
+        return self.slug
 
 
 class Title(models.Model):
@@ -56,7 +56,7 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
@@ -65,7 +65,7 @@ class Review(models.Model):
         'Текст отзыва',
         max_length=3000,
     )
-    autor = models.ForeignKey(
+    author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='reviews'
@@ -85,15 +85,24 @@ class Review(models.Model):
     def __str__(self) -> str:
         return self.text
 
+    class Meta:
+        ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name="unique_review")
+        ]
+
 
 class Comment(models.Model):
-    review_id = models.ForeignKey(
-        Review, on_delete=models.CASCADE)
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE,
+        related_name='comments')
     text = models.CharField(
         'Текст комментария',
         max_length=300
     )
-    autor = models.ForeignKey(
+    author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='comments')
@@ -103,4 +112,4 @@ class Comment(models.Model):
     )
 
     def __str__(self) -> str:
-        return self.text
+        return self.author
