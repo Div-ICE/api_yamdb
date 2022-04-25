@@ -16,17 +16,18 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
+from .filters import TitleFilter
 from .permissions import (AdminOnly, AuthorAdminModeratorOrReadOnly,
-                          IsAdminOrReadOnly, IsAuthorOrReadOnly, ReadOnly)
+                          IsAdminOrReadOnly, IsAuthorOrReadOnly, OwnerOrAdmins,
+                          ReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerializer, GenreSerializer,
                           GetTokenSerializer, ReviewSerializer,
-                          TitleSerializer, UserSerializer)
-from .filters import TitleFilter
+                          TitleSerializer, UserSerializer, MeSerializer)
 
 """все вьюсеты править, добавлять пермишены и тд"""
 
@@ -60,49 +61,32 @@ def create_user(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
-@permission_classes((AllowAny,))
-def get_token_for_user(request):
-    """Generates and returns token for created user"""
-    serializer = GetTokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    username = serializer.validated_data['username']
-    user = get_object_or_404(User, username=username)
-    confirmation_code = serializer.validated_data['confirmation_code']
-    if confirmation_code == user.confirmation_code:
-        token = str(RefreshToken.for_user(user).access_token)
-        return Response({'token': token}, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-
-
-
-class UsersViewSet(ModelViewSet):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser or AdminOnly]
-    lookup_field = "username"
+    permission_classes = [AdminOnly]
+    lookup_field = 'username'
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
+    filterset_fields = ('username')
     search_fields = ('username',)
 
     @action(
         detail=False,
         methods=['get', 'patch'],
+        url_path='me',
         permission_classes=[IsAuthenticated]
     )
-    def me(self, request):
-        user = request.user
+    def get_patch_me(self, request):
+        user = get_object_or_404(User, username=self.request.user)
         if request.method == 'GET':
-            serializer = self.get_serializer(user)
-            return Response(serializer.data)
-        serializer = self.get_serializer(
-            user,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+            serializer = MeSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method == 'PATCH':
+            serializer = MeSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CreateUserViewSet(APIView):
@@ -135,25 +119,18 @@ class CreateUserViewSet(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CodeJWTView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        serializer = GetTokenSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(
-            User,
-            email=serializer.data["email"],
-            confirmation_code=serializer.data["confirmation_code"],
-        )
-        user.save()
-        refresh_token = RefreshToken.for_user(user)
-        return Response(
-            {
-                "refresh": str(refresh_token),
-                "token": str(refresh_token.access_token),
-            }
-        )
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def token_post(request):
+    serializer = GetTokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    username = serializer.validated_data['username']
+    confirmation_code = serializer.validated_data['confirmation_code']
+    user = get_object_or_404(User, username=username)
+    if confirmation_code == user.confirmation_code:
+        token = str(AccessToken.for_user(user))
+        return Response({'token': token}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'PATCH'])

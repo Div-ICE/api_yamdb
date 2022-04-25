@@ -9,13 +9,29 @@ from users.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = fields = (
+        fields = (
             "username",
             "first_name",
             "last_name",
             "email",
             "role",
             "bio"
+        )
+        lookup_field = 'username'
+
+
+class MeSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
         )
 
 
@@ -29,6 +45,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug')
+        lookup_field = 'slug'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -92,16 +109,20 @@ class CreateUserSerializer(serializers.Serializer):
                 'Имя пользователя "me" не допустимо!'
             )
         return value
+
     class Meta:
         fields = ('username', 'email',)
         model = User
 
 
 class GetTokenSerializer(serializers.Serializer):
-    username = serializers.RegexField(
-        r'^[\w.@+-]+$',
+    username = serializers.CharField(
+        # r'^[\w.@+-]+$',
         max_length=150,
         required=True
     )
-    email = serializers.EmailField(required=True)
     confirmation_code = serializers.CharField(required=True)
+
+    class Meta:
+        fields = ('username', 'confirmation_code')
+        # model = User

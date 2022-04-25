@@ -5,6 +5,7 @@ USER = 'user'
 MODERATOR = 'moderator'
 ADMIN = 'admin'
 
+
 class User(AbstractUser):
     ROLE = (
         (USER, USER),
@@ -37,11 +38,16 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
+    confirmation_code = models.CharField(
+        'Код подтверждения',
+        max_length=100,
+        null=True
+    )
 
     def is_admin(self):
         return (
             self.role == ADMIN
-            or self.is_staff
+            or self.is_superuser
         )
 
     def is_moderator(self):
