@@ -88,22 +88,10 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'pub_date')
 
 
-class CategoryField(serializers.SlugRelatedField):
-    def to_representation(self, value):
-        serializer = CategorySerializer(value)
-        return serializer.data
-
-
-class GenreField(serializers.SlugRelatedField):
-    def to_representation(self, value):
-        serializer = GenreSerializer(value)
-        return serializer.data
-
-
 class TitlePostSerializer(serializers.ModelSerializer):
-    category = CategoryField(
+    category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all(), required=False)
-    genre = GenreField(slug_field='slug',
+    genre = serializers.SlugRelatedField(slug_field='slug',
                        queryset=Genre.objects.all(), many=True)
 
     class Meta:
