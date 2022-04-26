@@ -1,3 +1,4 @@
+from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
@@ -87,6 +88,11 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('id', 'text', 'author', 'pub_date')
 
+    def validate_review(self, value):
+        if value is None:
+            return 'У произведения нет такого отзыва'
+        return value
+
 
 class TitlePostSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
@@ -117,9 +123,13 @@ class CreateUserSerializer(serializers.Serializer):
     username = serializers.RegexField(
         r'^[\w.@+-]+$',
         max_length=150,
-        required=True
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
-    email = serializers.EmailField(required=True, max_length=254)
+    email = serializers.EmailField(
+        required=True, max_length=254,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
 
     def validate_username(self, value):
         if value == 'me':

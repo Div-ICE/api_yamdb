@@ -66,16 +66,10 @@ class CreateUserViewSet(APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
-        try:
-            User.objects.get_or_create(
-                username=username,
-                email=email.lower()
-            )
-        except IntegrityError:
-            return Response(
-                {'message': 'Имя пользователя или почта уже используются.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        User.objects.get_or_create(
+            username=username,
+            email=email.lower()
+        )
         user = get_object_or_404(User, email=email)
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
@@ -118,15 +112,22 @@ def users_me(request):
     )
 
 
-class CategoryViewSet(CreateModelMixin, ListModelMixin,
-                      DestroyModelMixin, GenericViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+class CastomMixin(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    GenericViewSet
+):
+    pagination_class = PageNumberPagination
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'slug')
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrReadOnly,)
+
+
+class CategoryViewSet(CastomMixin):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -136,10 +137,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        try:
-            review = title.reviews.get(id=self.kwargs.get('review_id'))
-        except TypeError:
-            TypeError('У произведения нет такого отзыва')
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
         return review.comments.all()
 
     def perform_create(self, serializer):
@@ -151,15 +149,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class GenreViewSet(CreateModelMixin, ListModelMixin,
-                   DestroyModelMixin, GenericViewSet):
+class GenreViewSet(CastomMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'slug')
-    lookup_field = 'slug'
-    pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
