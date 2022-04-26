@@ -135,7 +135,6 @@ class CreateUserSerializer(serializers.Serializer):
 
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
-        # r'^[\w.@+-]+$',
         max_length=150,
         required=True
     )
@@ -143,4 +142,3 @@ class GetTokenSerializer(serializers.Serializer):
 
     class Meta:
         fields = ('username', 'confirmation_code')
-        # model = User
