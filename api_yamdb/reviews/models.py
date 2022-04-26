@@ -13,16 +13,16 @@ def my_year_validator(value):
 
 
 class Genre(models.Model):
-    name = models.CharField('Название жанра', max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField('Название жанра', max_length=256, db_index=True)
+    slug = models.SlugField(max_length=50, unique=True, db_index=True)
 
     def __str__(self) -> str:
         return self.slug
 
 
 class Category(models.Model):
-    name = models.CharField('Название категории', max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField('Название категории', max_length=256, db_index=True)
+    slug = models.SlugField(max_length=50, unique=True, db_index=True)
 
     def __str__(self) -> str:
         return self.slug
@@ -32,6 +32,7 @@ class Title(models.Model):
     name = models.CharField(
         'Название',
         max_length=300,
+        db_index=True
     )
     year = models.IntegerField(
         'Год выпуска',
@@ -68,11 +69,13 @@ class Review(models.Model):
     text = models.CharField(
         'Текст отзыва',
         max_length=3000,
+        db_index=True
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='reviews',
+        db_index=True
     )
     score = models.IntegerField(
         'Оценка',
@@ -84,6 +87,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField(
         'Дата публикации отзыва',
         auto_now_add=True,
+        db_index=True
     )
 
     class Meta:
@@ -104,15 +108,19 @@ class Comment(models.Model):
         related_name='comments')
     text = models.CharField(
         'Текст комментария',
-        max_length=300
+        max_length=300,
+        db_index=True
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comments')
+        related_name='comments',
+        db_index=True
+    )
     pub_date = models.DateTimeField(
         'Дата публикации комментария',
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
     def __str__(self) -> str:
