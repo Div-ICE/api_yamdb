@@ -66,16 +66,10 @@ class CreateUserViewSet(APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
-        try:
-            User.objects.get_or_create(
-                username=username,
-                email=email.lower()
-            )
-        except IntegrityError:
-            return Response(
-                {'message': 'Имя пользователя или почта уже используются.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        User.objects.get_or_create(
+            username=username,
+            email=email.lower()
+        )
         user = get_object_or_404(User, email=email)
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
@@ -143,10 +137,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        try:
-            review = title.reviews.get(id=self.kwargs.get('review_id'))
-        except TypeError:
-            TypeError('У произведения нет такого отзыва')
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
         return review.comments.all()
 
     def perform_create(self, serializer):
