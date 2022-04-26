@@ -1,4 +1,5 @@
-import datetime
+from django.forms import ValidationError
+from django.utils import timezone
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -22,16 +23,20 @@ class Category(models.Model):
 
 
 class Title(models.Model):
+    def my_year_validator(value):
+        if value < 0 or value > timezone.now().year:
+            raise ValidationError(('%(value)s is not a correcrt year!'),
+                params={'value': value},
+            )
+
+    
     name = models.CharField(
         'Название',
         max_length=300,
     )
     year = models.IntegerField(
         'Год выпуска',
-        validators=[
-            MaxValueValidator(datetime.datetime.now().year),
-            MinValueValidator(0),
-        ]
+        validators=[my_year_validator]
     )
     description = models.TextField(
         'Описание',
