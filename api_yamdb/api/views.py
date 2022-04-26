@@ -118,15 +118,22 @@ def users_me(request):
     )
 
 
-class CategoryViewSet(CreateModelMixin, ListModelMixin,
-                      DestroyModelMixin, GenericViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+class CastomMixin(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    GenericViewSet
+):
+    pagination_class = PageNumberPagination
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'slug')
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrReadOnly,)
+
+
+class CategoryViewSet(CastomMixin):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -151,15 +158,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class GenreViewSet(CreateModelMixin, ListModelMixin,
-                   DestroyModelMixin, GenericViewSet):
+class GenreViewSet(CastomMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'slug')
-    lookup_field = 'slug'
-    pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
