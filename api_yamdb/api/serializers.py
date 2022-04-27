@@ -74,7 +74,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def validate_review(self, value):
         if value is None:
-            return 'У произведения нет такого отзыва'
+            raise serializers.ValidationError('У произведения нет такого отзыва')
         return value
 
 
