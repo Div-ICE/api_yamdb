@@ -1,28 +1,33 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.forms import ValidationError
-from django.utils import timezone
 from users.models import User
 
-
-def my_year_validator(value):
-        if value < 0 or value > timezone.now().year:
-            raise ValidationError(('%(value)s is not a correcrt year!'),
-                params={'value': value},
-            )
+from .validators import my_year_validator
 
 
 class Genre(models.Model):
     name = models.CharField('Название жанра', max_length=256, db_index=True)
     slug = models.SlugField(max_length=50, unique=True, db_index=True)
 
+    class Meta:
+        verbose_name = 'жанр'
+        verbose_name_plural = 'жанры'
+
     def __str__(self) -> str:
         return self.slug
 
 
 class Category(models.Model):
-    name = models.CharField('Название категории', max_length=256, db_index=True)
+    name = models.CharField(
+        'Название категории',
+        max_length=256,
+        db_index=True
+    )
     slug = models.SlugField(max_length=50, unique=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'категория'
+        verbose_name_plural = 'категории'
 
     def __str__(self) -> str:
         return self.slug
@@ -56,6 +61,10 @@ class Title(models.Model):
         null=True,
     )
 
+    class Meta:
+        verbose_name = 'произведение'
+        verbose_name_plural = 'произведения'
+
     def __str__(self) -> str:
         return self.name
 
@@ -80,14 +89,13 @@ class Review(models.Model):
     score = models.IntegerField(
         'Оценка',
         validators=[
-            MaxValueValidator(10),
-            MinValueValidator(1)
+            MaxValueValidator(10, message='Оценка должна быть от 1 до 10'),
+            MinValueValidator(1, message='Оценка должна быть от 1 до 10')
         ]
     )
     pub_date = models.DateTimeField(
         'Дата публикации отзыва',
         auto_now_add=True,
-        db_index=True
     )
 
     class Meta:
@@ -97,6 +105,8 @@ class Review(models.Model):
                 fields=['author', 'title'],
                 name="unique_review")
         ]
+        verbose_name = 'оценка'
+        verbose_name_plural = 'оценки'
 
     def __str__(self) -> str:
         return self.text
@@ -122,6 +132,10 @@ class Comment(models.Model):
         auto_now_add=True,
         db_index=True
     )
+
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
 
     def __str__(self) -> str:
         return self.author

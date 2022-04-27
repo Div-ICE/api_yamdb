@@ -44,6 +44,10 @@ class User(AbstractUser):
         null=True
     )
 
+    class Meta:
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
+
     def is_admin(self):
         return (
             self.role == ADMIN
