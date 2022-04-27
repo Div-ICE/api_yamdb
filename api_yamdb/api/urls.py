@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (CategoryViewSet, CommentViewSet, CreateUserViewSet,
                     GenreViewSet, ReviewViewSet, TitleViewSet, UserViewSet,
-                    token_post,)
+                    token_post)
 
 router = DefaultRouter()
 

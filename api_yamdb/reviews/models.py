@@ -2,7 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
 
-from .validators import my_year_validator
+from .validators import year_validator
 
 
 class Genre(models.Model):
@@ -41,7 +41,7 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         'Год выпуска',
-        validators=[my_year_validator]
+        validators=[year_validator]
     )
     description = models.TextField(
         'Описание',

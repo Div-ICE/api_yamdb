@@ -1,4 +1,3 @@
-from api_yamdb.settings import YAMDB_EMAIL
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -15,6 +14,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+
+from api_yamdb.settings import YAMDB_EMAIL
 
 from .filters import TitleFilter
 from .mixins import CreateListDestroyMixin
