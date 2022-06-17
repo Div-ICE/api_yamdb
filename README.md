@@ -9,7 +9,6 @@
 - Django Rest Framework
 - PyJWT
 - Django Filter
-- Pytest
 
 # Ресурсы API YaMDb
 **AUTH**: аутентификация.
